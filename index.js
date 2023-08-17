@@ -36,7 +36,40 @@ async function run() {
     await client.connect();
     // Send a ping to confirm a successful connection
 
-    const likhoUserCollection = client.db('likho').collection('generalUser')
+    const userCollection = client.db('userDB').collection('users')
+
+
+    // users
+    app.get('/users', async (req, res) => {
+      const result = await userCollection.find().toArray();
+      res.send(result)
+    })
+
+    app.post('/users', async (req, res) => {
+      const user = req.body;
+      const query = { email: user.email }
+      const existingUser = await userCollection.findOne(query);
+
+      if (existingUser) {
+        return res.send({ message: 'Student Already Exists' })
+      }
+      const result = await userCollection.insertOne(user)
+      res.send(result)
+    })
+
+
+    app.get('/users/admin/:email', async (req, res) => {
+      const email = req.params.email;
+
+      if (req.decoded.email !== email) {
+          return res.status(401).send({ error: true, message: 'Unauthorized Acess' })
+      }
+
+      const query = { email: email }
+      const user = await userCollection.findOne(query);
+      const result = { admin: user?.role === 'admin'}
+      res.send(result)
+  })
 
 
     await client.db("admin").command({ ping: 1 });
@@ -49,11 +82,11 @@ async function run() {
 run().catch(console.dir);
 
 
-app.get('/', (req, res)=>{
-    res.send("likho is in connection mode")
+app.get('/', (req, res) => {
+  res.send("Likho is in connection mode")
 })
 
-app.listen(port, ()=>{
-    console.log(`Likho doc is going to be opened on port: ${port}`)
+app.listen(port, () => {
+  console.log(`Likho doc is going to be opened on port: ${port}`)
 })
 
