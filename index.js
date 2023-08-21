@@ -18,7 +18,7 @@ app.use(express.json())
 
 
 
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const uri = `mongodb+srv://${process.env.LIKHO_USER}:${process.env.LIKHO_PASS_CODE}@cluster0.hscvvc4.mongodb.net/?retryWrites=true&w=majority`;
 
 // Create a MongoClient with a MongoClientOptions object to set the Stable API version
@@ -70,6 +70,23 @@ async function run() {
       const result = { admin: user?.role === 'admin'}
       res.send(result)
   })
+
+
+  app.patch('/users/:id', async (req, res) => {
+    const id = req.params.id;
+    const body = req.body;
+    console.log(body,id);
+    const filter = { _id: new ObjectId(id) };
+    const updatedDoc = {
+      $set: {
+        displayName: body.displayName,
+        email: body.email,
+        phoneNumber: body.phoneNumber,
+      },
+    };
+    const result = await userCollection.updateOne(filter, updatedDoc);
+    res.send(result);
+  });
 
 
     await client.db("admin").command({ ping: 1 });
