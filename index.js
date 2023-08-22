@@ -10,11 +10,6 @@ const port = process.env.PORT || 5000
 app.use(cors())
 app.use(express.json())
 
-//0JTpDUkUTEkCdj2I
-
-
-
-
 
 
 
@@ -57,19 +52,33 @@ async function run() {
       res.send(result)
     })
 
-
-    app.get('/users/admin/:email', async (req, res) => {
+    // admin dashboard
+    app.get('/admin/:email', async (req, res) => {
       const email = req.params.email;
 
-      if (req.decoded.email !== email) {
-          return res.status(401).send({ error: true, message: 'Unauthorized Acess' })
-      }
+      // if (req.decoded.email !== email) {
+      //   return res.status(401).send({ error: true, message: 'Unauthorized Acess' })
+      // }
 
       const query = { email: email }
       const user = await userCollection.findOne(query);
-      const result = { admin: user?.role === 'admin'}
+      const result = { admin: user?.role === 'admin' }
       res.send(result)
-  })
+    })
+
+    // user dashboard
+    app.get('/general/user/:email', async (req, res) => {
+      const email = req.params.email;
+
+      // if (req.decoded.email !== email) {
+      //   return res.status(401).send({ error: true, message: 'Unauthorized Acess' })
+      // }
+
+      const query = { email: email }
+      const user = await userCollection.findOne(query);
+      const result = { admin: user?.role === 'user' }
+      res.send(result)
+    })
 
 
     await client.db("admin").command({ ping: 1 });
