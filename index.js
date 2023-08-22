@@ -40,15 +40,16 @@ async function run() {
       res.send(result)
     })
 
-    app.post('/users', async (req, res) => {
+    app.put('/users/:email', async (req, res) => {
+      const email = req.params.email
       const user = req.body;
-      const query = { email: user.email }
-      const existingUser = await userCollection.findOne(query);
-
-      if (existingUser) {
-        return res.send({ message: 'Student Already Exists' })
+      const filter = { email: email }
+      const option = { upsert: true }
+      const updateDoc = {
+        $set: user
       }
-      const result = await userCollection.insertOne(user)
+
+      const result = await userCollection.updateOne(filter, updateDoc, option);
       res.send(result)
     })
 
@@ -76,7 +77,7 @@ async function run() {
 
       const query = { email: email }
       const user = await userCollection.findOne(query);
-      const result = { admin: user?.role === 'user' }
+      const result = { user: user?.role === 'user' }
       res.send(result)
     })
 
