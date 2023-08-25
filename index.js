@@ -1,20 +1,20 @@
 require('dotenv').config()
 const express = require('express')
 const app = express()
-
 const cors = require('cors')
+const http = require('http');
+const { Server } = require("socket.io");
+
+
 const port = process.env.PORT || 5000
+const server = http.createServer(app);
 
-
-
-app.use(cors())
+app.use(cors({
+  origin: "*"
+}));
 app.use(express.json())
 
 //0JTpDUkUTEkCdj2I
-
-
-
-
 
 
 
@@ -99,11 +99,38 @@ async function run() {
 run().catch(console.dir);
 
 
-app.get('/', (req, res) => {
+const io = new Server(server, {
+  cors: {
+      origin: "https://likho-7e3d6.web.app",
+      methods: ["GET", "POST"]
+  }
+});
+
+
+io.on('connection', (socket) => {
+  console.log(`User Connected ${socket.id}`);
+
+  socket.on("disconnect", () => {
+      console.log("User Disconnect", socket.id)
+  });
+
+  socket.on("join_room", (data) => {
+      socket.join(data);
+      console.log(`User with ID: ${socket.id} joined room: ${data}`);
+  });
+
+  socket.on("send_message", (data) => {
+      socket.to(data.room).emit("receive_message", data);
+  });
+});
+
+app.get("/", (req,res) =>{
   res.send("Likho is in connection mode")
 })
 
-app.listen(port, () => {
-  console.log(`Likho doc is going to be opened on port: ${port}`)
-})
+
+server.listen(port, () => {
+  console.log('Chat app server is running');
+});
+
 
