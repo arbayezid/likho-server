@@ -113,7 +113,7 @@ run().catch(console.dir);
 
 const io = new Server(server, {
   cors: {
-      origin: "https://likho-7e3d6.web.app",
+      origin: "http://localhost:5173",
       methods: ["GET", "POST"]
   }
 });
@@ -142,7 +142,7 @@ app.get("/", (req,res) =>{
 
 
 server.listen(port, () => {
-  console.log('Chat app server is running');
+  console.log('Likho server is running');
 });
 
 
